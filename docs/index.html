@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- GitHub Pages activation trigger -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -80,7 +79,95 @@
 <header>Polynomial Root Finder — Educational Demo (G–K Method)</header>
 
 <div class="container">
+<h2>Mathematical Background and Method Description</h2>
 
+<p>
+We consider a real polynomial
+</p>
+
+<p style="text-align:center; font-style:italic;">
+p(x) = a<sub>n</sub>x<sup>n</sup> + a<sub>n−1</sub>x<sup>n−1</sup> + ··· + a<sub>1</sub>x + a<sub>0</sub>,
+</p>
+
+<p>
+of degree <b>n ≥ 5</b>, where all coefficients <b>a<sub>i</sub> ∈ ℝ</b>.
+The objective of this platform is to illustrate an exact and reliable numerical procedure
+for computing the <b>positive real roots</b> of <i>p(x) = 0</i>.
+</p>
+
+<p>
+For polynomial equations of degree greater than four, no general closed-form solutions exist.
+Root computation therefore relies on numerical methods. The approach presented here combines:
+</p>
+
+<ul>
+  <li>theoretical localization of roots,</li>
+  <li>rigorous root existence verification,</li>
+  <li>and a convergent iterative scheme based on the G–K decomposition.</li>
+</ul>
+
+<h3>1. Localization of Positive Roots (Cauchy Bound)</h3>
+
+<p>
+An upper bound <i>M</i> for all positive real roots of <i>p(x)</i> is obtained using Cauchy’s theorem:
+</p>
+
+<p style="text-align:center; font-style:italic;">
+x ≤ M = 1 + max<sub>0 ≤ i &lt; n</sub> |a<sub>i</sub> / a<sub>n</sub>|.
+</p>
+
+<p>
+Hence, all positive real roots lie in the interval <b>(0, M)</b>.
+</p>
+
+<h3>2. Root Existence and Counting (Sturm Theorem)</h3>
+
+<p>
+To determine whether roots actually exist in the interval (0, M), Sturm’s theorem is applied.
+By constructing the Sturm sequence associated with <i>p(x)</i> and evaluating sign variations
+at the interval endpoints, the exact number of real roots in (0, M) is established.
+</p>
+
+<p>
+This step guarantees that the numerical iteration is applied only on intervals
+where roots are known to exist.
+</p>
+
+<h3>3. G–K Decomposition</h3>
+
+<p>
+The polynomial is rewritten in the form:
+</p>
+
+<p style="text-align:center; font-style:italic;">
+p(x) = G(x) − K(x),
+</p>
+
+<p>
+where <i>G(x) &gt; 0</i> and <i>K(x) &gt; 0</i> on (0, M).
+This decomposition allows the construction of a fixed-point formulation
+suited for iterative computation.
+</p>
+
+<h3>4. G–K Fixed-Point Iteration</h3>
+
+<p>
+From the G–K decomposition, an iteration of the form
+</p>
+
+<p style="text-align:center; font-style:italic;">
+x<sub>k+1</sub> = Φ(x<sub>k</sub>)
+</p>
+
+<p>
+is obtained. Under appropriate conditions, this sequence converges monotonically
+to a positive real root of <i>p(x)</i>.
+</p>
+
+<p>
+The interactive section below allows the user to experiment with this method
+by specifying the degree and coefficients of a polynomial.
+</p>
   <h2>Input</h2>
   <label>Degree n (n ≥ 5)</label>
   <input id="degree" type="number" min="5" placeholder="e.g. 7" />
@@ -133,4 +220,4 @@ function runDemo() {
 </script>
 
 </body>
-</html>.
+</html>
