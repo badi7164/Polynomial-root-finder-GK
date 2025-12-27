@@ -151,6 +151,61 @@ suited for iterative computation.
 
 <h3>4. G–K Fixed-Point Iteration</h3>
 
+<h3>5. Convergence Analysis and Theoretical Justification</h3>
+
+<p>
+The convergence of the G–K method is based on a constructive decomposition of the polynomial
+</p>
+
+<p style="text-align:center; font-style:italic;">
+P(x) = G(x) − K(x),
+</p>
+
+<p>
+where the functions <i>G(x)</i> and <i>K(x)</i> are positive and strictly increasing on
+the interval <i>(0, M)</i>. Such a decomposition can be obtained by separating the
+positive and negative coefficient parts of <i>P(x)</i> and introducing an auxiliary
+linear function <i>m(x) = Lx</i>, with <i>L &gt; 0</i> sufficiently large.
+</p>
+
+<p>
+A positive real root <i>x*</i> of <i>P(x) = 0</i> satisfies
+</p>
+
+<p style="text-align:center; font-style:italic;">
+G(x*) = K(x*),
+</p>
+
+<p>
+and is therefore a fixed point of the iterative scheme defined by
+</p>
+
+<p style="text-align:center; font-style:italic;">
+K(x<sub>n+1</sub>) = G(x<sub>n</sub>).
+</p>
+
+<p>
+When the auxiliary function is chosen as <i>m(x) = Lx</i>, the iteration can be written
+explicitly as
+</p>
+
+<p style="text-align:center; font-style:italic;">
+x<sub>n+1</sub> = x<sub>n</sub> + P(x<sub>n</sub>) / L.
+</p>
+
+<p>
+Since both <i>G</i> and <i>K</i> are strictly increasing on <i>(0, M)</i>, the iteration
+preserves order and generates a monotone sequence. For any initial value
+<i>x<sub>0</sub> ∈ (0, M)</i>, the sequence <i>(x<sub>n</sub>)</i> converges to the positive
+real root <i>x*</i>.
+</p>
+
+<p>
+The convergence is linear and depends explicitly on the choice of the parameter <i>L</i>.
+Larger values of <i>L</i> improve robustness and monotonicity, while smaller values may
+accelerate convergence at the expense of stability. This trade-off explains the reliable
+but conservative behavior of the G–K method compared with Newton-type iterations.
+</p>  
 <p>
 From the G–K decomposition, an iteration of the form
 </p>
