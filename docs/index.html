@@ -1,5 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+  function p(x) {
+  let sum = 0;
+  for (let i = 0; i < coeffs.length; i++) {
+    sum += coeffs[i] * Math.pow(x, i);
+  }
+  return sum;
+}
+
+function dp(x) {
+  let sum = 0;
+  for (let i = 1; i < coeffs.length; i++) {
+    sum += i * coeffs[i] * Math.pow(x, i - 1);
+  }
+  return sum;
+} 
+    function computeReferenceRoot(x0, maxIter = 40) {
+  let x = x0;
+  for (let i = 0; i < maxIter; i++) {
+    const fx = p(x);
+    const dfx = dp(x);
+    if (Math.abs(dfx) < 1e-12) break;
+    x = x - fx / dfx;
+  }
+  return x;
+}
+    function iterateGK(x0, L, alpha, N = 20) {
+  let x = x0;
+  let errors = [];
+  for (let k = 0; k < N; k++) {
+    errors.push(Math.abs(x - alpha));
+    x = x + p(x) / L;
+  }
+  return errors;
+}
+    function iterateNewton(x0, alpha, N = 20) {
+  let x = x0;
+  let errors = [];
+  for (let k = 0; k < N; k++) {
+    errors.push(Math.abs(x - alpha));
+    const dfx = dp(x);
+    if (Math.abs(dfx) < 1e-12) break;
+    x = x - p(x) / dfx;
+  }
+  return errors;
+}
+    function iterateBisection(a, b, alpha, N = 20) {
+  let errors = [];
+  for (let k = 0; k < N; k++) {
+    let m = 0.5 * (a + b);
+    errors.push(Math.abs(m - alpha));
+    if (p(a) * p(m) <= 0) {
+      b = m;
+    } else {
+      a = m;
+    }
+  }
+  return errors;
+}
+    let convergenceChart = null;
+
+function plotConvergence(errorsGK, errorsNewton, errorsBisect) {
+  const ctx = document.getElementById("convergenceChart").getContext("2d");
+
+  const labels = errorsGK.map((_, i) => i);
+
+  if (convergenceChart) {
+    convergenceChart.destroy();
+  }
+
+  convergenceChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "G–K Method",
+          data: errorsGK,
+          borderWidth: 2,
+          fill: false
+        },
+        {
+          label: "Newton Method",
+          data: errorsNewton,
+          borderWidth: 2,
+          fill: false
+        },
+        {
+          label: "Bisection Method",
+          data: errorsBisect,
+          borderWidth: 2,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          type: "logarithmic",
+          title: {
+            display: true,
+            text: "Error (log scale)"
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: "Iteration"
+          }
+        }
+      }
+    }
+  });
+}
+  </script>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -272,7 +388,18 @@ function runDemo() {
 
   document.getElementById('demo').innerHTML = html;
 }
+  const x0 = 0.5 * M;        // initial guess
+const L = 10 * M;         // damping parameter (safe)
+const alpha = computeReferenceRoot(x0);
+
+const errGK = iterateGK(x0, L, alpha);
+const errNewton = iterateNewton(x0, alpha);
+const errBisect = iterateBisection(0, M, alpha);
+
+plotConvergence(errGK, errNewton, errBisect);
 </script>
 
 </body>
 </html>
+<h2>Convergence Comparison</h2>
+<canvas id="convergenceChart" width="600" height="400"></canvas>
