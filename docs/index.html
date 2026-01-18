@@ -354,49 +354,101 @@ by specifying the degree and coefficients of a polynomial.
 <script>
 function runDemo() {
   const n = parseInt(document.getElementById('degree').value);
-  const coeffs = document.getElementById('coeffs').value.split(',').map(x => parseFloat(x.trim()));
+  const coeffs = document.getElementById('coeffs').value
+    .split(',')
+    .map(x => parseFloat(x.trim()));
 
   if (coeffs.length !== n + 1) {
     alert('Number of coefficients must be n + 1');
     return;
   }
 
-  let html = "";
-
-  html += `<div class='step'><h3>Step 1 — Polynomial</h3>`;
-  html += `<div class='math'>p(x) = ${coeffs.map((a,i)=>`${a}x^${i}`).reverse().join(' + ')}</div></div>`;
-
-  const an = coeffs[n];
-  let maxRatio = 0;
-  for (let i = 0; i < n; i++) maxRatio = Math.max(maxRatio, Math.abs(coeffs[i]/an));
-  const M = 1 + maxRatio;
-
-  html += `<div class='step'><h3>Step 2 — Cauchy Bound</h3>`;
-  html += `<p>Computed bound: <b>M = ${M.toFixed(4)}</b></p></div>`;
-
-  html += `<div class='step'><h3>Step 3 — G–K Decomposition</h3>`;
-  html += `<p>p(x) = G(x) − K(x)</p></div>`;
-
-  html += `<div class='step'><h3>Step 4 — Iteration (Demo)</h3>`;
-  html += `<table><tr><th>k</th><th>xₖ</th></tr>`;
-  let x = M / 2;
-  for (let k = 0; k < 5; k++) {
-    html += `<tr><td>${k}</td><td>${x.toFixed(6)}</td></tr>`;
-    x *= 0.9;
+  // -----------------------------------
+  // Polynomial definitions
+  // -----------------------------------
+  function p(x) {
+    return coeffs.reduce((sum, a, i) => sum + a * Math.pow(x, i), 0);
   }
-  html += `</table></div>`;
 
-  document.getElementById('demo').innerHTML = html;
+  function dp(x) {
+    return coeffs
+      .slice(1)
+      .reduce((sum, a, i) => sum + (i + 1) * a * Math.pow(x, i), 0);
+  }
+
+  // -----------------------------------
+  // Cauchy bound
+  // -----------------------------------
+  const an = coeffs[n];
+  const M =
+    1 +
+    Math.max(
+      ...coeffs.slice(0, n).map(a => Math.abs(a / an))
+    );
+
+  // -----------------------------------
+  // Compute reference root (Newton)
+  // -----------------------------------
+  function computeReferenceRoot(x0, maxIter = 40) {
+    let x = x0;
+    for (let i = 0; i < maxIter; i++) {
+      const fx = p(x);
+      const dfx = dp(x);
+      if (Math.abs(dfx) < 1e-10) break;
+      x = x - fx / dfx;
+    }
+    return x;
+  }
+
+  const x0 = 0.5 * M;
+  const alpha = computeReferenceRoot(x0);
+
+  // -----------------------------------
+  // Iteration methods
+  // -----------------------------------
+  function iterateGK(x0, L, alpha, N = 20) {
+    let x = x0;
+    let err = [];
+    for (let k = 0; k < N; k++) {
+      err.push(Math.abs(x - alpha));
+      x = x + p(x) / L;
+    }
+    return err;
+  }
+
+  function iterateNewton(x0, alpha, N = 10) {
+    let x = x0;
+    let err = [];
+    for (let k = 0; k < N; k++) {
+      err.push(Math.abs(x - alpha));
+      const dfx = dp(x);
+      if (Math.abs(dfx) < 1e-10) break;
+      x = x - p(x) / dfx;
+    }
+    return err;
+  }
+
+  function iterateBisection(a, b, alpha, N = 20) {
+    let err = [];
+    for (let k = 0; k < N; k++) {
+      const m = 0.5 * (a + b);
+      err.push(Math.abs(m - alpha));
+      if (p(a) * p(m) <= 0) b = m;
+      else a = m;
+    }
+    return err;
+  }
+
+  const L = 10 * M;
+  const errGK = iterateGK(x0, L, alpha);
+  const errNewton = iterateNewton(x0, alpha);
+  const errBisect = iterateBisection(0, M, alpha);
+
+  // -----------------------------------
+  // Plot convergence
+  // -----------------------------------
+  plotConvergence(errGK, errNewton, errBisect);
 }
-  const x0 = 0.5 * M;        // initial guess
-const L = 10 * M;         // damping parameter (safe)
-const alpha = computeReferenceRoot(x0);
-
-const errGK = iterateGK(x0, L, alpha);
-const errNewton = iterateNewton(x0, alpha);
-const errBisect = iterateBisection(0, M, alpha);
-
-plotConvergence(errGK, errNewton, errBisect);
 </script>
 
 </body>
